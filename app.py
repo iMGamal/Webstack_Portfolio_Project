@@ -1,6 +1,9 @@
 """These are the modules for the application."""
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask import request
+from flask import redirect
+from flask import url_for
 
 
 app = Flask(__name__)
@@ -13,7 +16,7 @@ class User(db.Model):
     """Define a user table in the database."""
     user_id = db.Column(db.Integer, primary_key = True)
     user_name = db.Column(db.String(100), unique = True, nullable = False)
-    password = db.Column(db.String(100), unique = True, nullable = False)
+    user_password = db.Column(db.String(100), unique = True, nullable = False)
 
 
 class Quiz(db.Model):
@@ -43,6 +46,24 @@ with app.app_context():
 def home():
     """Return the home page."""
     return "Welcome to the home page!"
+
+
+@app.route('/register', methods = ['GET', 'POST'])
+def registration():
+    """Register a user into the app database."""
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        new_user = User(user_name = username, user_password = password)
+        db.Session.add(new_user)
+        db.Session.commit()
+        return redirect(url_for('login'))
+
+    return '''<form method="post">
+                    Username: <input type="text" id="name"><br>
+                    Password: <input type="password" id="pass"><br>
+                    <input type="submit", id="submit">
+                </form>'''
 
 
 if __name__ == '__main__':
